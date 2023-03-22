@@ -1,0 +1,37 @@
+{
+  "workspace": {
+    "mail": "Mail"
+  },
+  "selection": {
+    "MailEntity": "Mail"
+  },
+  "field": {
+    "smtpPort": "SMTP port",
+    "smtpHostname": "POP3/IMAP hostname",
+    "pop3Port": "POP3/IMAP port",
+    "smtpUser": "SMTP user",
+    "smtpPassword": "SMTP password",
+    "pop3User": "IMAP user",
+    "pop3Password": "IMAP password",
+    "pop3Hostname": "IMAP hostname",
+    "predefinedMailType": "Default settings",
+    "pop3RefreshTime": "Fetch mail timeout(sec)",
+    "mailFetchProtocolType": "Protocol",
+    "smtpSecurity": "SMTP security",
+    "pop3Security": "IMAP security",
+    "sender": "Sender"
+  },
+  "help": {
+    "field": {
+      "mailSecurity": "Server Security Protocol",
+      "sender": "Default sender address for mail"
+    }
+  },
+  "mail": {
+    "name": "Mail",
+    "setting": {
+      "label": "Mail settings",
+      "st_MaiIDefaultInboxFolderName": "Default folder name"
+    }
+  }
+}

@@ -1,6 +1,6 @@
-package org.touchhome.bundle.mail.setting;
+package org.homio.bundle.mail.setting;
 
-import org.touchhome.bundle.api.setting.SettingPluginText;
+import org.homio.bundle.api.setting.SettingPluginText;
 
 public class MaiIDefaultInboxFolderName implements SettingPluginText {
 

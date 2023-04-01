@@ -1,4 +1,4 @@
-package org.touchhome.bundle.mail;
+package org.homio.bundle.mail;
 
 import java.util.function.Function;
 import javax.persistence.Entity;
@@ -9,14 +9,14 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.Email;
-import org.touchhome.bundle.api.entity.types.CommunicationEntity;
-import org.touchhome.bundle.api.model.KeyValueEnum;
-import org.touchhome.bundle.api.ui.UISidebarChildren;
-import org.touchhome.bundle.api.ui.field.UIField;
-import org.touchhome.bundle.api.ui.field.UIFieldGroup;
-import org.touchhome.bundle.api.ui.field.UIFieldType;
-import org.touchhome.bundle.api.util.SecureString;
-import org.touchhome.bundle.api.util.Lang;
+import org.homio.bundle.api.entity.types.CommunicationEntity;
+import org.homio.bundle.api.model.KeyValueEnum;
+import org.homio.bundle.api.ui.UISidebarChildren;
+import org.homio.bundle.api.ui.field.UIField;
+import org.homio.bundle.api.ui.field.UIFieldGroup;
+import org.homio.bundle.api.ui.field.UIFieldType;
+import org.homio.bundle.api.util.SecureString;
+import org.homio.bundle.api.util.Lang;
 
 @Getter
 @Setter

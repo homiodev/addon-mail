@@ -1,4 +1,4 @@
-package org.touchhome.bundle.mail;
+package org.homio.bundle.mail;
 
 import java.io.File;
 import java.net.MalformedURLException;

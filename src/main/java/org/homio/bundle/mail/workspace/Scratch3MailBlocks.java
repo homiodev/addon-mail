@@ -1,4 +1,4 @@
-package org.touchhome.bundle.mail.workspace;
+package org.homio.bundle.mail.workspace;
 
 import com.pivovarit.function.ThrowingBiConsumer;
 import com.pivovarit.function.ThrowingConsumer;
@@ -28,22 +28,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.homio.bundle.mail.MailEntrypoint;
+import org.homio.bundle.mail.setting.MaiIDefaultInboxFolderName;
 import org.jsoup.Jsoup;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.touchhome.bundle.api.EntityContext;
-import org.touchhome.bundle.api.EntityContextBGP;
-import org.touchhome.bundle.api.state.DecimalType;
-import org.touchhome.bundle.api.state.RawType;
-import org.touchhome.bundle.api.state.State;
-import org.touchhome.bundle.api.workspace.WorkspaceBlock;
-import org.touchhome.bundle.api.workspace.scratch.MenuBlock;
-import org.touchhome.bundle.api.workspace.scratch.Scratch3Block;
-import org.touchhome.bundle.api.workspace.scratch.Scratch3ExtensionBlocks;
-import org.touchhome.bundle.mail.MailBuilder;
-import org.touchhome.bundle.mail.MailEntity;
-import org.touchhome.bundle.mail.MailEntrypoint;
-import org.touchhome.bundle.mail.setting.MaiIDefaultInboxFolderName;
+import org.homio.bundle.api.EntityContext;
+import org.homio.bundle.api.EntityContextBGP;
+import org.homio.bundle.api.state.DecimalType;
+import org.homio.bundle.api.state.RawType;
+import org.homio.bundle.api.state.State;
+import org.homio.bundle.api.workspace.WorkspaceBlock;
+import org.homio.bundle.api.workspace.scratch.MenuBlock;
+import org.homio.bundle.api.workspace.scratch.Scratch3Block;
+import org.homio.bundle.api.workspace.scratch.Scratch3ExtensionBlocks;
+import org.homio.bundle.mail.MailBuilder;
+import org.homio.bundle.mail.MailEntity;
 
 @Log4j2
 @Component

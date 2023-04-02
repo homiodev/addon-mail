@@ -36,5 +36,9 @@
     <version>1.2.3</version>
   </parent>
 
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
+
+  <scm>
+    <tag>v1.0.1</tag>
+  </scm>
 </project>

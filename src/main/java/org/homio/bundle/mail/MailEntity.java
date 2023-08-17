@@ -108,7 +108,7 @@ public class MailEntity extends CommunicationEntity<MailEntity> {
   }
 
   public void setSmtpPassword(String value) {
-    setJsonData("smtp_password", value);
+    setJsonDataSecure("smtp_password", value);
   }
 
   @UIField(order = 100)

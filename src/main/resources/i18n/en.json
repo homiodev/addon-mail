@@ -22,10 +22,8 @@
     "sender": "Sender"
   },
   "help": {
-    "field": {
       "mailSecurity": "Server Security Protocol",
       "sender": "Default sender address for mail"
-    }
   },
   "mail": {
     "name": "Mail",

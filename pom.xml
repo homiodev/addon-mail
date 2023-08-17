@@ -20,15 +20,10 @@
       <version>1.6.2</version>
     </dependency>
   </dependencies>
-  <description>communication:This binding is used to access POP3, IMAP and SMTP servers.</description>
-
+  
   <modelVersion>4.0.0</modelVersion>
   <name>Mail</name>
   <packaging>jar</packaging>
-
-  <properties>
-    <category>Communication</category>
-  </properties>
 
   <parent>
     <artifactId>addon-parent</artifactId>

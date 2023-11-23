@@ -1,4 +1,4 @@
-package org.homio.bundle.mail.workspace;
+package org.homio.addon.mail.workspace;
 
 import com.pivovarit.function.ThrowingBiConsumer;
 import com.pivovarit.function.ThrowingConsumer;
@@ -28,22 +28,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.homio.bundle.mail.MailEntrypoint;
-import org.homio.bundle.mail.setting.MaiIDefaultInboxFolderName;
+import org.homio.addon.mail.MailBuilder;
+import org.homio.addon.mail.MailEntity;
+import org.homio.addon.mail.MailEntrypoint;
+import org.homio.addon.mail.setting.MaiIDefaultInboxFolderName;
 import org.jsoup.Jsoup;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.homio.bundle.api.EntityContext;
-import org.homio.bundle.api.EntityContextBGP;
-import org.homio.bundle.api.state.DecimalType;
-import org.homio.bundle.api.state.RawType;
-import org.homio.bundle.api.state.State;
-import org.homio.bundle.api.workspace.WorkspaceBlock;
-import org.homio.bundle.api.workspace.scratch.MenuBlock;
-import org.homio.bundle.api.workspace.scratch.Scratch3Block;
-import org.homio.bundle.api.workspace.scratch.Scratch3ExtensionBlocks;
-import org.homio.bundle.mail.MailBuilder;
-import org.homio.bundle.mail.MailEntity;
+import org.homio.api.Context;
+import org.homio.api.ContextBGP;
+import org.homio.api.state.DecimalType;
+import org.homio.api.state.RawType;
+import org.homio.api.state.State;
+import org.homio.api.workspace.WorkspaceBlock;
+import org.homio.api.workspace.scratch.MenuBlock;
+import org.homio.api.workspace.scratch.Scratch3Block;
+import org.homio.api.workspace.scratch.Scratch3ExtensionBlocks;
 
 @Log4j2
 @Component
@@ -61,9 +61,9 @@ public class Scratch3MailBlocks extends Scratch3ExtensionBlocks {
   private final Scratch3Block whenGotMailHat;
   private Integer lastMessageCount;
 
-  public Scratch3MailBlocks(EntityContext entityContext, MailEntrypoint mailEntrypoint) {
-    super("#8F4D77", entityContext, mailEntrypoint, null);
-    setParent("communication");
+  public Scratch3MailBlocks(Context context, MailEntrypoint mailEntrypoint) {
+    super("#8F4D77", context, mailEntrypoint, null);
+    setParent(ScratchParent.communication);
 
     // Menu
     this.mailMenu = menuServerItems("mailEntity", MailEntity.class, "Select Mail");
@@ -156,7 +156,7 @@ public class Scratch3MailBlocks extends Scratch3ExtensionBlocks {
       popHandlers.get(mailEntity.getEntityID()).registeredHandlers
           .put(workspaceBlock.getBlockId(), store -> {
             try (Folder mailbox = store.getFolder(
-                entityContext.setting().getValue(MaiIDefaultInboxFolderName.class))) {
+                context.setting().getValue(MaiIDefaultInboxFolderName.class))) {
               mailbox.open(Folder.READ_ONLY);
               Message message = handler.apply(mailbox);
               if (message != null) {
@@ -279,8 +279,7 @@ public class Scratch3MailBlocks extends Scratch3ExtensionBlocks {
   private enum MailApplyHandler {
     update_add_file((workspaceBlock, mailBuilder) -> {
       Object input = workspaceBlock.getInput(VALUE, true);
-      if (input instanceof String) {
-        String mediaURL = (String) input;
+      if (input instanceof String mediaURL) {
         if (mediaURL.startsWith("http")) {
           mailBuilder.withURLAttachment(mediaURL);
         } else {
@@ -308,12 +307,12 @@ public class Scratch3MailBlocks extends Scratch3ExtensionBlocks {
   private class POPHandler {
 
     private final Map<String, ThrowingConsumer<Store, Exception>> registeredHandlers = new HashMap<>();
-    private final EntityContextBGP.ThreadContext<Void> refreshTask;
+    private final ContextBGP.ThreadContext<Void> refreshTask;
     private final MailEntity mailEntity;
 
     public POPHandler(MailEntity mailEntity) {
       this.mailEntity = mailEntity;
-      this.refreshTask = entityContext.bgp().builder(mailEntity.getEntityID() + "-mail-fetch-task")
+      this.refreshTask = context.bgp().builder(mailEntity.getEntityID() + "-mail-fetch-task")
           .delay(Duration.ofSeconds(5)).interval(Duration.ofSeconds(mailEntity.getPop3RefreshTime()))
           .execute(this::refresh);
     }

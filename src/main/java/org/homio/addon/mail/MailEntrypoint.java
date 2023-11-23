@@ -1,21 +1,16 @@
-package org.homio.bundle.mail;
+package org.homio.addon.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.homio.api.AddonEntrypoint;
 import org.springframework.stereotype.Component;
-import org.homio.bundle.api.BundleEntrypoint;
 
 @Log4j2
 @Component
 @RequiredArgsConstructor
-public class MailEntrypoint implements BundleEntrypoint {
+public class MailEntrypoint implements AddonEntrypoint {
 
   public void init() {
 
-  }
-
-  @Override
-  public int order() {
-    return 3000;
   }
 }

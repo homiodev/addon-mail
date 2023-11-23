@@ -1,35 +1,33 @@
-package org.homio.bundle.mail;
+package org.homio.addon.mail;
 
+import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Min;
 import java.util.function.Function;
-import javax.persistence.Entity;
-import javax.validation.constraints.Min;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.Email;
-import org.homio.bundle.api.entity.types.CommunicationEntity;
-import org.homio.bundle.api.model.KeyValueEnum;
-import org.homio.bundle.api.ui.UISidebarChildren;
-import org.homio.bundle.api.ui.field.UIField;
-import org.homio.bundle.api.ui.field.UIFieldGroup;
-import org.homio.bundle.api.ui.field.UIFieldType;
-import org.homio.bundle.api.util.SecureString;
-import org.homio.bundle.api.util.Lang;
+import org.homio.api.entity.types.CommunicationEntity;
+import org.homio.api.model.OptionModel.KeyValueEnum;
+import org.homio.api.ui.UISidebarChildren;
+import org.homio.api.ui.field.UIField;
+import org.homio.api.ui.field.UIFieldGroup;
+import org.homio.api.util.Lang;
+import org.homio.api.util.SecureString;
+import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings({"JpaAttributeMemberSignatureInspection", "JpaAttributeTypeInspection"})
 @Getter
 @Setter
 @Entity
 @Accessors(chain = true)
 @UISidebarChildren(icon = "fas fa-envelope", color = "#CC3300")
-public class MailEntity extends CommunicationEntity<MailEntity> {
+public class MailEntity extends CommunicationEntity {
 
-  public static final String PREFIX = "mail_";
-
-  @UIField(order = 1, required = true, hideInEdit = true, hideOnEmpty = true, fullWidth = true, bg = "#334842",
-      type = UIFieldType.HTML)
-  public String getDescription() {
+  @Override
+  public String getDescriptionImpl() {
     if (StringUtils.isEmpty(getSender())
         || StringUtils.isEmpty(getSmtpHostname())
         || StringUtils.isEmpty(getSmtpUser())
@@ -37,9 +35,14 @@ public class MailEntity extends CommunicationEntity<MailEntity> {
         || StringUtils.isEmpty(getPop3Hostname())
         || StringUtils.isEmpty(getPop3Password())
         || StringUtils.isEmpty(getPop3User())) {
-      return Lang.getServerMessage("mail.description");
+      return Lang.getServerMessage("MAIL.DESCRIPTION");
     }
     return null;
+  }
+
+  @Override
+  protected @NotNull String getDevicePrefix() {
+    return "mail";
   }
 
   @UIField(order = 10, inlineEdit = true)
@@ -171,24 +174,18 @@ public class MailEntity extends CommunicationEntity<MailEntity> {
   }
 
   @UIField(order = 250)
-  @Min(10)
   @UIFieldGroup("POP3/IMAP")
   public int getPop3RefreshTime() {
     return getJsonData("pop3_refresh_time", 60);
   }
 
-  public void setPop3RefreshTime(int value) {
+  public void setPop3RefreshTime(@Min(10) int value) {
     setJsonData("pop3_refresh_time", value);
   }
 
   @Override
   public String getDefaultName() {
     return "MailBot";
-  }
-
-  @Override
-  public String getEntityPrefix() {
-    return PREFIX;
   }
 
   @RequiredArgsConstructor

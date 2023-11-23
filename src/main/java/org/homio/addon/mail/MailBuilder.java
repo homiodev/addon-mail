@@ -1,4 +1,4 @@
-package org.homio.bundle.mail;
+package org.homio.addon.mail;
 
 import java.io.File;
 import java.net.MalformedURLException;

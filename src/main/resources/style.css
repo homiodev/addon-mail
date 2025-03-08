@@ -4,6 +4,11 @@ input, select {
     border-radius: 3px;
 }
 
+.compose-mail-form {
+    overflow-y: auto;
+    height: 100%;
+}
+
 .remove-button {
     display: none;
     margin-left: 5px;

@@ -228,6 +228,16 @@ public class MailEntity extends CommunicationEntity implements HasCustomWidget,
     setJsonData("def_f", value);
   }
 
+  @UIField(order = 350)
+  @UIFieldGroup("GENERAL")
+  public int getMaxMailCountToFetchOnStartup() {
+    return getJsonData("mcfos", 100);
+  }
+
+  public void setMaxMailCountToFetchOnStartup(int value) {
+    setJsonData("mcfos", value);
+  }
+
   @Override
   public String getDefaultName() {
     return "MailBot";

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -148,7 +149,16 @@ public class MailService extends EntityService.ServiceInstance<MailEntity> {
                 }
                 var emails = folderMessages.computeIfAbsent(folder, k -> new LinkedHashSet<>());
                 AtomicInteger count = new AtomicInteger(0);
-                Arrays.stream(messages).parallel().limit(10)
+                Arrays.stream(messages)
+                  .sorted(Comparator.comparing((Message m) -> {
+                      try {
+                        return m.getReceivedDate();
+                      } catch (MessagingException e) {
+                        return new Date(0);
+                      }
+                    })
+                    .reversed())
+                  .limit(entity.getMaxMailCountToFetchOnStartup())
                   .forEach(message -> {
                     try {
                       var msg = new MessageWrapper(getMessageUID(message), message.getSubject(), folder, message.getFrom()[0].toString(),
@@ -336,7 +346,7 @@ public class MailService extends EntityService.ServiceInstance<MailEntity> {
   @SneakyThrows
   public @Nullable JsonNode sendMail(String to, String subject, String body, ArrayNode files) {
     MailBuilder builder = new MailBuilder(entity, subject, body, to);
-    if(files != null) {
+    if (files != null) {
       for (JsonNode file : files) {
         builder.withFileAttachment(file.get("name").asText(), file.get("content").binaryValue());
       }
@@ -395,7 +405,11 @@ public class MailService extends EntityService.ServiceInstance<MailEntity> {
     public void setBody(Object html, boolean plainText) {
       String body = html.toString();
       if (plainText) {
-        this.fullBody = "<html><body>" + body.replace("\r\n", "<br>").replace("\n", "<br>") + "</body></html>";
+        if(!body.startsWith("<html")) {
+          this.fullBody = "<html><body>" + body.replace("\r\n", "<br>").replace("\n", "<br>") + "</body></html>";
+        } else {
+          this.fullBody = body.replace("\r\n", "").replace("\n", "");
+        }
       } else {
         this.fullBody = body.replaceAll("(?i)<br\\s*/?>", "");
       }

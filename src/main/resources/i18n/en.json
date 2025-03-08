@@ -19,17 +19,11 @@
     "mailFetchProtocolType": "Protocol",
     "smtpSecurity": "SMTP security",
     "pop3Security": "IMAP security",
-    "sender": "Sender"
+    "sender": "Sender",
+    "defFolder": "Default folder name"
   },
   "help": {
       "mailSecurity": "Server Security Protocol",
       "sender": "Default sender address for mail"
-  },
-  "mail": {
-    "name": "Mail",
-    "setting": {
-      "label": "Mail settings",
-      "st_MaiIDefaultInboxFolderName": "Default folder name"
-    }
   }
 }

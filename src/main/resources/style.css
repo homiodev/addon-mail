@@ -1,0 +1,211 @@
+input, select {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+}
+
+.remove-button {
+    display: none;
+    margin-left: 5px;
+}
+
+.visible {
+    display: inline !important;
+}
+
+button {
+    background: #266070;
+    cursor: pointer;
+    border: 2px solid #1f4d59;
+    border-radius: 3px;
+    padding: 4px 6px;
+}
+
+button:hover {
+    filter: brightness(110%);
+}
+
+button.active {
+    background: #288571;
+    border-color: #247060;
+}
+
+button.active:hover {
+    filter: brightness(110%);
+}
+
+button:disabled {
+    background: #7e8d91;
+    border-color: #6d7678;
+    cursor: not-allowed;
+}
+
+.composeForm textarea {
+    display: block;
+    min-width: 350px;
+    min-height: 100px;
+
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
+}
+
+.subject-line {
+    white-space: no-wrap;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.search .counter {
+    position: absolute;
+    right: 2px;
+    font-size: 12px;
+}
+
+.search .search-input {
+    width: 120px;
+}
+
+.table-container {
+    overflow-y: auto;
+    overflow-x: none;
+}
+
+.mail-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.mail-table thead {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.mail-table th {
+    padding: 2px 5px;
+    text-align: left;
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.mail-table th:nth-child(1) {
+    max-width: 100px;
+}
+
+.mail-table th:nth-child(2) {
+    width: auto;
+}
+
+.mail-table th:nth-child(3) {
+    width: 60px;
+}
+
+.mail-table td:nth-child(3) {
+    text-align: right;
+    font-size: 0.7rem;
+}
+
+.mail-table th:nth-child(4) {
+    width: 24px;
+}
+
+.mail-table td {
+    border-top: 1px solid #e1e1e1;
+    cursor: pointer;
+}
+
+.mail-table td:nth-child(1) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mail-table td:nth-child(3) {
+    text-align: right;
+}
+
+.mail-row.unread {
+    font-weight: bold;
+    filter: brightness(110%);
+}
+
+.mail-row:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sender-cell {
+    width: 200px;
+}
+
+.preview-text {
+    color: #5f6368;
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: no-wrap;
+    max-width: 400px;
+    max-height: 18px;
+}
+
+.close-mail-button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
+
+.delete-button, .close-mail-button {
+    margin-left: 5px;
+    background: red;
+}
+
+.attachment-icon {
+    color: #5f6368;
+    margin-left: 8px;
+}
+
+.mail-content {
+    padding: 8px;
+    border-top: 1px solid #e1e1e1;
+}
+
+.star-icon {
+    color: #e0b028;
+    margin-right: 8px;
+}
+
+.sort-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sort-header:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sort-indicator {
+    margin-left: 8px;
+}
+
+.pagination-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-controls {
+    height: 24px;
+    padding: 3px 5px;
+    border-bottom: 1px solid #e1e1e1;
+    gap: 16px;
+    display: flex;
+}

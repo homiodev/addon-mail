@@ -1,30 +1,64 @@
 package org.homio.addon.mail;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Min;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.mail.Email;
+import org.homio.api.Context;
+import org.homio.api.entity.BaseEntity;
+import org.homio.api.entity.HasJsonData;
 import org.homio.api.entity.types.CommunicationEntity;
+import org.homio.api.model.Icon;
+import org.homio.api.model.JSON;
 import org.homio.api.model.OptionModel.KeyValueEnum;
+import org.homio.api.model.UpdatableValue;
+import org.homio.api.service.EntityService;
 import org.homio.api.ui.UISidebarChildren;
 import org.homio.api.ui.field.UIField;
 import org.homio.api.ui.field.UIFieldGroup;
+import org.homio.api.ui.field.UIFieldSlider;
+import org.homio.api.ui.field.action.HasDynamicUIFields;
+import org.homio.api.ui.field.action.v1.UIInputBuilder;
+import org.homio.api.util.CommonUtils;
 import org.homio.api.util.Lang;
 import org.homio.api.util.SecureString;
+import org.homio.api.widget.CustomWidgetDataStore;
+import org.homio.api.widget.HasCustomWidget;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings({"JpaAttributeMemberSignatureInspection", "JpaAttributeTypeInspection"})
+import java.util.Map;
+import java.util.Properties;
+import java.util.function.Function;
+
+@SuppressWarnings({"JpaAttributeMemberSignatureInspection", "JpaAttributeTypeInspection", "ClassEscapesDefinedScope", "unused"})
 @Getter
 @Setter
 @Entity
 @Accessors(chain = true)
 @UISidebarChildren(icon = "fas fa-envelope", color = "#CC3300")
-public class MailEntity extends CommunicationEntity {
+public class MailEntity extends CommunicationEntity implements HasCustomWidget,
+  EntityService<MailService> {
+
+  @Override
+  public @Nullable Map<String, CallServiceMethod> getCallServices() {
+    return Map.of(
+      "getFullMailBody",
+      (context, params) -> getService().getFullMailBody(params.get("id").asText()),
+      "deleteMail",
+      (context, params) -> getService().deleteMail(params.get("id").asText()),
+    "sendMail",
+      (context, params) -> getService().sendMail(
+        params.get("to").asText(),
+        params.get("subject").asText(),
+        params.get("body").asText(),
+        (ArrayNode)params.path("files")));
+
+  }
 
   @Override
   public String getDescriptionImpl() {
@@ -175,6 +209,7 @@ public class MailEntity extends CommunicationEntity {
 
   @UIField(order = 250)
   @UIFieldGroup("POP3/IMAP")
+  @UIFieldSlider(min = 10, max = 600)
   public int getPop3RefreshTime() {
     return getJsonData("pop3_refresh_time", 60);
   }
@@ -183,9 +218,40 @@ public class MailEntity extends CommunicationEntity {
     setJsonData("pop3_refresh_time", value);
   }
 
+  @UIField(order = 300)
+  @UIFieldGroup("GENERAL")
+  public String getDefFolder() {
+    return getJsonData("def_f", "INBOX");
+  }
+
+  public void setDefFolder(String value) {
+    setJsonData("def_f", value);
+  }
+
   @Override
   public String getDefaultName() {
     return "MailBot";
+  }
+
+  @Override
+  public void assembleActions(UIInputBuilder uiInputBuilder) {
+
+  }
+
+  @Override
+  public long getEntityServiceHashCode() {
+    return getJsonDataHashCode("pop3_hostname", "pop3_password",
+      "pop3_user", "smtp_hostname", "smtp_user", "smtp_password");
+  }
+
+  @Override
+  public @NotNull Class<MailService> getEntityServiceItemClass() {
+    return MailService.class;
+  }
+
+  @Override
+  public @Nullable MailService createService(@NotNull Context context) {
+    return new MailService(context, this);
   }
 
   @RequiredArgsConstructor
@@ -204,25 +270,68 @@ public class MailEntity extends CommunicationEntity {
     private final String title;
 
     @Override
-    public String getValue() {
+    public @NotNull String getValue() {
       return title;
     }
 
-    public void prepareMail(Email mail, MailEntity mailEntity) {
+    public Properties prepareMail(MailEntity mailEntity) {
+      Properties props = new Properties();
+      props.put("mail.smtp.host", mailEntity.getSmtpHostname());
+      props.put("mail.smtp.port", mailEntity.getSmtpPort());
+      props.put("mail.smtp.auth", "true");
+
       switch (this) {
         case SSL:
-          mail.setSSLOnConnect(true);
-          mail.setSslSmtpPort(String.valueOf(mailEntity.getSmtpPort()));
+          props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+          props.put("mail.smtp.socketFactory.port", mailEntity.getSmtpPort());
+          props.put("mail.smtp.ssl.enable", "true");
           break;
         case START_TLS:
-          mail.setStartTLSEnabled(true);
-          mail.setStartTLSRequired(true);
-          mail.setSmtpPort(mailEntity.getSmtpPort());
+          props.put("mail.smtp.starttls.enable", "true");
           break;
         case PLAIN:
-          mail.setSmtpPort(mailEntity.getSmtpPort());
+          break;
       }
+      return props;
     }
+  }
+
+  @Override
+  public void assembleUIFields(@NotNull HasDynamicUIFields.UIFieldBuilder uiFieldBuilder,
+                               @NotNull HasJsonData sourceEntity) {
+    var folder = UpdatableValue.wrap(sourceEntity, getDefFolder(), "folder");
+    uiFieldBuilder.addInput(1, folder);
+  }
+
+  @Override
+  public void setWidgetDataStore(@NotNull CustomWidgetDataStore customWidgetDataStore, @NotNull String
+    widgetEntityID, @NotNull JSON widgetData) {
+    getService().setWidgetDataStore(customWidgetDataStore, widgetEntityID, widgetData);
+  }
+
+  @Override
+  public void removeWidgetDataStore(@NotNull String widgetEntityID) {
+    getService().removeWidgetDataStore(widgetEntityID);
+  }
+
+  @Override
+  public @NotNull BaseEntity createWidget(@NotNull Context context, @NotNull String name, @NotNull String tabId,
+                                          int width, int height) {
+    return context
+      .widget()
+      .createCustomWidget(
+        getEntityID(),
+        tabId,
+        builder ->
+          builder
+            .code(CommonUtils.readFile("code.js"))
+            .css(CommonUtils.readFile("style.css"))
+            .parameterEntity(getEntityID()));
+  }
+
+  @Override
+  public @Nullable Map<String, Icon> getAvailableWidgets() {
+    return Map.of("Mail", new Icon("fas fa-envelope", "#CC3300"));
   }
 
   @RequiredArgsConstructor

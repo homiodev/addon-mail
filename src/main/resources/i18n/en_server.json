@@ -1,5 +1,5 @@
 {
   "MAIL": {
-    "DESCRIPTION": "Mail requires all mandatory fields to be set. You may choose pre-defined settings from <b>'Default settings'</b> select box. Tips: Gmail requires turn-off less secure app: https://myaccount.google.com/lesssecureapps"
+    "DESCRIPTION": "Mail requires all mandatory fields to be set. You may choose pre-defined settings from <b>'Default settings'</b> select box. Tips: Gmail requires enable <a href=\"https://myaccount.google.com/security\" target=\"_blank\">2-Step Verification</a>. Then create <a href=\"https://myaccount.google.com/apppasswords\" target=\"_blank\">App password</a>"
   }
 }

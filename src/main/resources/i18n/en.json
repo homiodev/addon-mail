@@ -5,9 +5,14 @@
   "SELECTION": {
     "MailEntity": "Mail"
   },
+  "GROUP": {
+    "POP3/IMAP": "POP3/IMAP",
+    "SMTP": "Smtp"
+  },
   "field": {
+    "maxMailCountToFetchOnStartup": "Max mails to fetch on startup",
     "smtpPort": "SMTP port",
-    "smtpHostname": "POP3/IMAP hostname",
+    "smtpHostname": "SMTP hostname",
     "pop3Port": "POP3/IMAP port",
     "smtpUser": "SMTP user",
     "smtpPassword": "SMTP password",
@@ -23,7 +28,8 @@
     "defFolder": "Default folder name"
   },
   "help": {
-      "mailSecurity": "Server Security Protocol",
+    "maxMailCountToFetchOnStartup": "How much last mails would be fetched on startup from server",
+    "mailSecurity": "Server Security Protocol",
       "sender": "Default sender address for mail"
   }
 }

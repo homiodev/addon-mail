@@ -131,67 +131,71 @@ public class MailService extends EntityService.ServiceInstance<MailEntity> {
         .delay(Duration.ofSeconds(10))
         .interval(Duration.ofSeconds(entity.getPop3RefreshTime()))
         .execute(() -> connectToMailServerAndHandle(store -> {
-          Set<String> folders = widgetListeners.values()
-            .stream()
-            .map(s -> s.widgetData.optString("folder", entity.getDefFolder()))
-            .collect(Collectors.toSet());
-          folders.add(entity.getDefFolder());
-          try {
-            for (String folder : folders) {
-              try (Folder mailbox = store.getFolder(folder)) {
-                mailbox.open(Folder.READ_ONLY);
-                Message[] messages;
-                if (lastCheckedTimestamp != null) {
-                  SearchTerm searchTerm = new ReceivedDateTerm(ComparisonTerm.GT, new Date(lastCheckedTimestamp));
-                  messages = mailbox.search(searchTerm);
-                } else {
-                  messages = mailbox.getMessages();
-                }
-                var emails = folderMessages.computeIfAbsent(folder, k -> new LinkedHashSet<>());
-                AtomicInteger count = new AtomicInteger(0);
-                Arrays.stream(messages)
-                  .sorted(Comparator.comparing((Message m) -> {
-                      try {
-                        return m.getReceivedDate();
-                      } catch (MessagingException e) {
-                        return new Date(0);
-                      }
-                    })
-                    .reversed())
-                  .limit(entity.getMaxMailCountToFetchOnStartup())
-                  .forEach(message -> {
-                    try {
-                      var msg = new MessageWrapper(getMessageUID(message), message.getSubject(), folder, message.getFrom()[0].toString(),
-                        message.getDescription(), message.getMessageNumber(), message.getReceivedDate(), message.getSize(), message.isSet(Flags.Flag.SEEN),
-                        getAttachments(message));
-                      if (message.isMimeType("multipart/*")) {
-                        Multipart multipart = (Multipart) message.getContent();
-                        for (int i = 0; i < multipart.getCount(); i++) {
-                          BodyPart part = multipart.getBodyPart(i);
-                          if (part.isMimeType("text/plain")) {
-                            msg.preview = part.getContent().toString();
-                          }
-                        }
-                      }
-                      emails.add(msg);
-                    } catch (Exception e) {
-                      log.error("Error while reading mail", e);
-                    }
-                    log.info("Processed {}/{} mail", count.incrementAndGet(), messages.length);
-                  });
-              }
-            }
-            lastCheckedTimestamp = System.currentTimeMillis();
-            setWidgetDataToUI();
-          } catch (Exception e) {
-            log.error("Error while reading mails", e);
-          }
-
-          for (ThrowingConsumer<Store, Exception> handler : registeredHandlers.values()) {
-            handler.accept(store);
-          }
+          fireReadMessagesFromServer(store);
           return 0;
         }));
+  }
+
+  private void fireReadMessagesFromServer(Store store) throws Exception {
+    Set<String> folders = widgetListeners.values()
+      .stream()
+      .map(s -> s.widgetData.optString("folder", entity.getDefFolder()))
+      .collect(Collectors.toSet());
+    folders.add(entity.getDefFolder());
+    try {
+      for (String folder : folders) {
+        try (Folder mailbox = store.getFolder(folder)) {
+          mailbox.open(Folder.READ_ONLY);
+          Message[] messages;
+          if (lastCheckedTimestamp != null) {
+            SearchTerm searchTerm = new ReceivedDateTerm(ComparisonTerm.GT, new Date(lastCheckedTimestamp));
+            messages = mailbox.search(searchTerm);
+          } else {
+            messages = mailbox.getMessages();
+          }
+          var emails = folderMessages.computeIfAbsent(folder, k -> new LinkedHashSet<>());
+          AtomicInteger count = new AtomicInteger(0);
+          Arrays.stream(messages)
+            .sorted(Comparator.comparing((Message m) -> {
+                try {
+                  return m.getReceivedDate();
+                } catch (MessagingException e) {
+                  return new Date(0);
+                }
+              })
+              .reversed())
+            .limit(entity.getMaxMailCountToFetchOnStartup())
+            .forEach(message -> {
+              try {
+                var msg = new MessageWrapper(getMessageUID(message), message.getSubject(), folder, message.getFrom()[0].toString(),
+                  message.getDescription(), message.getMessageNumber(), message.getReceivedDate(), message.getSize(), message.isSet(Flags.Flag.SEEN),
+                  getAttachments(message));
+                if (message.isMimeType("multipart/*")) {
+                  Multipart multipart = (Multipart) message.getContent();
+                  for (int i = 0; i < multipart.getCount(); i++) {
+                    BodyPart part = multipart.getBodyPart(i);
+                    if (part.isMimeType("text/plain")) {
+                      msg.preview = part.getContent().toString();
+                    }
+                  }
+                }
+                emails.add(msg);
+              } catch (Exception e) {
+                log.error("Error while reading mail", e);
+              }
+              log.info("Processed {}/{} mail", count.incrementAndGet(), messages.length);
+            });
+        }
+      }
+      lastCheckedTimestamp = System.currentTimeMillis();
+      setWidgetDataToUI();
+    } catch (Exception e) {
+      log.error("Error while reading mails", e);
+    }
+
+    for (ThrowingConsumer<Store, Exception> handler : registeredHandlers.values()) {
+      handler.accept(store);
+    }
   }
 
   private static void readMessageBody(Message message, MessageWrapper msg) throws Exception {
@@ -293,13 +297,19 @@ public class MailService extends EntityService.ServiceInstance<MailEntity> {
             connectToMailServerAndHandle(store -> {
               var folder = store.getFolder(message.folder);
               folder.open(message.seen ? Folder.READ_ONLY : Folder.READ_WRITE);
-              Message msg = folder.getMessage(message.num);
-              if (msg != null) {
-                readMessageBody(msg, message);
-              }
-              if (!message.seen) {
-                msg.setFlag(Flags.Flag.SEEN, true);
-                folder.close(true);
+              try {
+                Message msg = folder.getMessage(message.num);
+                if (msg != null) {
+                  readMessageBody(msg, message);
+                  if (!message.seen) {
+                    msg.setFlag(Flags.Flag.SEEN, true);
+                    folder.close(true);
+                  }
+                }
+                return null;
+              } catch (IndexOutOfBoundsException e) {
+                // some messages were deleted. fire re-read all messages
+                lastCheckedTimestamp = null;
               }
               return null;
             });

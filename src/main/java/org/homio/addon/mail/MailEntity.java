@@ -88,8 +88,7 @@ public class MailEntity extends CommunicationEntity implements HasCustomWidget,
     setJsonData("def_type", value);
   }
 
-  @UIField(order = 30, required = true, inlineEditWhenEmpty = true)
-  @UIFieldGroup("SMTP")
+  @UIField(order = 100, required = true, inlineEditWhenEmpty = true)
   public String getSender() {
     return getJsonData("sender");
   }
@@ -322,21 +321,6 @@ public class MailEntity extends CommunicationEntity implements HasCustomWidget,
   @Override
   public void removeWidgetDataStore(@NotNull String widgetEntityID) {
     getService().removeWidgetDataStore(widgetEntityID);
-  }
-
-  @Override
-  public @NotNull BaseEntity createWidget(@NotNull Context context, @NotNull String name, @NotNull String tabId,
-                                          int width, int height) {
-    return context
-      .widget()
-      .createCustomWidget(
-        getEntityID(),
-        tabId,
-        builder ->
-          builder
-            .code(CommonUtils.readFile("code.js"))
-            .css(CommonUtils.readFile("style.css"))
-            .parameterEntity(getEntityID()));
   }
 
   @Override
